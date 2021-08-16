@@ -6,8 +6,15 @@ use App\Exception\Type\WrongTypeException;
 use App\Validator\IntArrayValidator;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class IntArrayValidatorTest
+ * @package Tests\App\Validator
+ */
 class IntArrayValidatorTest extends TestCase
 {
+    /**
+     * Tests if a proper array is positively validated
+     */
     public function testIntArrayValidatorPositive()
     {
         try {
@@ -17,6 +24,11 @@ class IntArrayValidatorTest extends TestCase
         }
     }
 
+    /**
+     * Tests if given an improper array returns an exception
+     *
+     * @throws WrongTypeException
+     */
     public function testIntArrayValidatorWrongTypeException()
     {
         $this->expectException(WrongTypeException::class);

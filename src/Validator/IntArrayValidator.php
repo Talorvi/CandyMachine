@@ -22,9 +22,8 @@ class IntArrayValidator
      */
     public static function validate(array $arr): bool
     {
-        foreach ($arr as $item)
-        {
-            if (!is_int($item) ) {
+        foreach ($arr as $item) {
+            if (!is_int($item)) {
                 throw new WrongTypeException();
             }
         }

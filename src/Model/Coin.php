@@ -4,7 +4,12 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-
+/**
+ * The nomination is told in gross (2PLN = 200 gross)
+ *
+ * Class Coin
+ * @package App\Model
+ */
 class Coin
 {
     /**
@@ -13,9 +18,9 @@ class Coin
     private int $nomination;
 
     /**
-     * @param $nomination
+     * @param int $nomination
      */
-    public function __construct($nomination)
+    public function __construct(int $nomination)
     {
         $this->nomination = $nomination;
     }

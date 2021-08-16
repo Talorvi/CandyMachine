@@ -47,8 +47,7 @@ class CoinValidator
         try {
             IntArrayValidator::validate($existingNominations);
             $this->existingNominations = $existingNominations;
-        }
-        catch (Throwable $exception) {
+        } catch (Throwable $exception) {
             echo $exception->getMessage();
         }
     }
@@ -71,8 +70,7 @@ class CoinValidator
         try {
             IntArrayValidator::validate($acceptedNominations);
             $this->acceptedNominations = $acceptedNominations;
-        }
-        catch (Throwable $exception) {
+        } catch (Throwable $exception) {
             echo $exception->getMessage();
         }
     }
@@ -87,10 +85,12 @@ class CoinValidator
      */
     public function validate($nomination): Coin
     {
-        if (!in_array($nomination, $this->existingNominations))
+        if (!in_array($nomination, $this->existingNominations)) {
             throw new InvalidCoinNominationException();
-        if (!in_array($nomination, $this->acceptedNominations))
+        }
+        if (!in_array($nomination, $this->acceptedNominations)) {
             throw new NotAcceptedNominationException();
+        }
         return new Coin($nomination);
     }
 }

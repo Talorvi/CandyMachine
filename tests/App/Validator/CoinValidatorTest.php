@@ -9,15 +9,28 @@ use App\Model\Coin;
 use App\Validator\CoinValidator;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class CoinValidatorTest
+ * @package Tests\App\Validator
+ */
 class CoinValidatorTest extends TestCase
 {
+    /**
+     * @var CoinValidator
+     */
     private CoinValidator $coinValidator;
 
+    /**
+     *
+     */
     public function setUp(): void
     {
         $this->coinValidator = new CoinValidator();
     }
 
+    /**
+     * Tests if default values are not null
+     */
     public function testGetAcceptedNominations()
     {
         $acceptedNominations = $this->coinValidator->getAcceptedNominations();
@@ -25,6 +38,9 @@ class CoinValidatorTest extends TestCase
         self::assertNotNull($acceptedNominations);
     }
 
+    /**
+     * Tests if proper array can be set as accepted nominations
+     */
     public function testSetAcceptedNominations()
     {
         $newAcceptedNominations = [1, 2, 3, 4];
@@ -33,6 +49,9 @@ class CoinValidatorTest extends TestCase
         self::assertEquals($newAcceptedNominations, $this->coinValidator->getAcceptedNominations());
     }
 
+    /**
+     * Tests if wrong nominations will print an error message
+     */
     public function testSetAcceptedNominationsFail()
     {
         $this->expectOutputString((new WrongTypeException)->getMessage());
@@ -43,6 +62,9 @@ class CoinValidatorTest extends TestCase
         self::assertNotEquals($newAcceptedNominations, $this->coinValidator->getAcceptedNominations());
     }
 
+    /**
+     * Tests if default values are not null
+     */
     public function testGetExistingNominations()
     {
         $existingNominations = $this->coinValidator->getExistingNominations();
@@ -50,6 +72,9 @@ class CoinValidatorTest extends TestCase
         self::assertNotNull($existingNominations);
     }
 
+    /**
+     * Tests if proper array can be set as existing nominations
+     */
     public function testSetExistingNominations()
     {
         $newExistingNominations = [1, 2, 3, 4];
@@ -58,6 +83,9 @@ class CoinValidatorTest extends TestCase
         self::assertEquals($newExistingNominations, $this->coinValidator->getExistingNominations());
     }
 
+    /**
+     * Tests if wrong nominations will print an error message
+     */
     public function testSetExistingNominationsFail()
     {
         $this->expectOutputString((new WrongTypeException)->getMessage());
@@ -68,15 +96,20 @@ class CoinValidatorTest extends TestCase
         self::assertNotEquals($newExistingNominations, $this->coinValidator->getExistingNominations());
     }
 
+    /**
+     * Tests if a proper coin is validated properly
+     */
     public function testValidate()
     {
-        try {
-            $coin = $this->coinValidator->validate(200);
-            self::assertInstanceOf(Coin::class, $coin);
-        } catch (InvalidCoinNominationException | NotAcceptedNominationException $e) {
-        }
+        $coin = $this->coinValidator->validate(200);
+        self::assertInstanceOf(Coin::class, $coin);
     }
 
+    /**
+     * Tests if invalid coin nomination is being recognized properly
+     *
+     * @throws InvalidCoinNominationException
+     */
     public function testValidateInvalidCoinNominationException()
     {
         $this->expectException(InvalidCoinNominationException::class);
@@ -84,6 +117,11 @@ class CoinValidatorTest extends TestCase
         $coin = $this->coinValidator->validate(3);
     }
 
+    /**
+     * Tests if not accepted coin nomination is being recognized properly
+     *
+     * @throws NotAcceptedNominationException
+     */
     public function testValidateNotAcceptedNominationException()
     {
         $this->expectException(NotAcceptedNominationException::class);

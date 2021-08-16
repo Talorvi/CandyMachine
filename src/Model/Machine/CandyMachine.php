@@ -5,63 +5,81 @@ declare(strict_types=1);
 namespace App\Model\Machine;
 
 
+use App\Exception\Machine\CoinInventoryFullException;
 use App\Interfaces\State;
 use App\Interfaces\VendingMachine;
 use App\Model\Coin;
-use App\Model\Item\Candy;
-use App\Model\State\ClosedState;
-use App\Model\State\OpenState;
+use App\Model\State\Candy\ClosedState;
+use App\Model\State\Candy\OpenState;
+use App\Model\Store\CandyMachineStore;
 use Throwable;
 
+/**
+ * Class CandyMachine
+ * @package App\Model\Machine
+ */
 class CandyMachine implements VendingMachine
 {
+    /**
+     * Coin is in the inventory
+     *
+     * @var OpenState
+     */
     private OpenState $openState;
+
+    /**
+     * There is no coin in the inventory
+     *
+     * @var ClosedState
+     */
     private ClosedState $closedState;
+
+    /**
+     * Current state of the machine
+     *
+     * @var State
+     */
     private State $state;
 
     /**
-     * Number of coins stored in the machine
+     * Store of the machine. It stores its' remaining candies, stored money and coin inventory
      *
-     * @var int
+     * @var CandyMachineStore
      */
-    private int $coinStash = 0;
+    private CandyMachineStore $store;
 
     /**
-     * Current inventory of the machine.
-     *
-     * @var Coin|null
+     * CandyMachine constructor.
+     * @param int $remainingCandies
      */
-    private ?Coin $coinInventory = null;
-
-    /**
-     * @var int
-     */
-    private int $remainingCandies = 0;
-
     public function __construct(int $remainingCandies = 0)
     {
         $this->openState = new OpenState($this);
         $this->closedState = new ClosedState($this);
+        $this->store = new CandyMachineStore($remainingCandies);
 
         $this->state = $this->closedState;
-
-        $this->remainingCandies = $remainingCandies;
     }
 
     /**
+     * Inserting coin can change the state of the machine from OPEN to CLOSED
      *
+     * @param Coin $coin
      */
     public function insertCoin(Coin $coin): void
     {
         try {
             $this->state->insertCoin($coin);
+        } catch (CoinInventoryFullException $exception) {
+            echo $exception->getMessage();
         } catch (Throwable $exception) {
+            $this->store->dispenseCoin($coin);
             echo $exception->getMessage();
         }
     }
 
     /**
-     *
+     * Turning the knob can dispense a candy, when a proper coin is in the machines' inventory
      */
     public function turnKnob(): void
     {
@@ -73,6 +91,9 @@ class CandyMachine implements VendingMachine
         }
     }
 
+    /**
+     * When a coin is in the machines' inventory, it's possible to retrieve the coin, resetting the machines' state
+     */
     public function reset(): void
     {
         $this->state->reset();
@@ -95,22 +116,6 @@ class CandyMachine implements VendingMachine
     }
 
     /**
-     * @return int
-     */
-    public function getCoinStash(): int
-    {
-        return $this->coinStash;
-    }
-
-    /**
-     * Increments the coin stash
-     */
-    public function incrementCoinStash(): void
-    {
-        $this->coinStash++;
-    }
-
-    /**
      * @return OpenState
      */
     public function getOpenState(): OpenState
@@ -127,56 +132,10 @@ class CandyMachine implements VendingMachine
     }
 
     /**
-     * @return int
+     * @return CandyMachineStore
      */
-    public function getRemainingCandies(): int
+    public function getStore(): CandyMachineStore
     {
-        return $this->remainingCandies;
-    }
-
-    /**
-     * @param int $candyAmount
-     */
-    public function addCandies(int $candyAmount): void
-    {
-        $this->remainingCandies += $candyAmount;
-    }
-
-    /**
-     * @return Coin|null
-     */
-    public function getCoinInventory(): ?Coin
-    {
-        return $this->coinInventory;
-    }
-
-    /**
-     * @param Coin|null $coin
-     */
-    public function setCoinInventory(?Coin $coin): void
-    {
-        $this->coinInventory = $coin;
-    }
-
-    /**
-     * @param Coin $coin
-     * @return Coin
-     */
-    public function dispenseCoin(Coin $coin): Coin
-    {
-        echo $coin->getNomination().PHP_EOL;
-        return $coin;
-    }
-
-    /**
-     * @return Candy
-     */
-    public function dispenseCandy(): Candy
-    {
-        $candy = new Candy();
-        $this->remainingCandies--;
-        echo $candy->getName();
-
-        return $candy;
+        return $this->store;
     }
 }
